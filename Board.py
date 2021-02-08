@@ -1,29 +1,35 @@
 from Piece import *
-import Random as random
 
 class Board:
-    def __init__(self):
-        self.field = [['X' for i in range(6)] for j in range(4)]
-        self.pieces = [('F', 1), ('B', 1), (1, 1), (2, 2), (3, 1), (9, 1), (10, 1)]
+    def __init__(self, file_name):
+        self.field = [['X' for i in range(6)] for i in range(4)]
+        setup_list = []
 
-    def __repr__(self):
-        return "Board"
+        with open(file_name) as f:
+            line = f.readline()
+            setup_list.append(line.rstrip('\n'))
+            while line:
+                line = f.readline()
+                if line != '':
+                    setup_list.append(line.rstrip('\n'))
 
-    def __str__(self):
-        return "Board"
-
-    def set_board(self):
-        random.
-        for i in self.pieces[1:]:
-
-        self.field[0, 0] = Piece('R', [0, 0], 10)
+        random_list = []
+        for i in range(4):
+            line = setup_list[i]
+            help_list = line.split()
+            for j in help_list:
+                if j != 'X':
+                    self.field[i][help_list.index(j)] = Piece(j[0], [i, help_list.index(j)], j[1:])
 
     def print_board(self):
         for i in range(4):
-            print(self.field[i])
+            for piece in self.field[i]:
+                if piece != 'X':
+                    print(piece.print_piece(), end=' ')
+                else:
+                    print('X', end=' ')
+            print('')
 
 
-field = Board()
-field.print_board()
-
-print("Hello World")
+field = Board("Initial_setup.txt")
+print(field)
