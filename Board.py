@@ -25,3 +25,5 @@ class Board:
 
 field = Board()
 field.print_board()
+
+print("Hello World")
