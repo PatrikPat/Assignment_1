@@ -2,6 +2,7 @@ from Piece import *
 from Board import *
 import random as random
 
+
 class Game:
     def __init__(self, filename):
         self.board = Board(filename)
@@ -14,15 +15,34 @@ class Game:
     def play_game(self):
         players = ['R', 'B']
         i = 0
+        victor = 'Draw'
         while True:
             move = self.move(players[i % 2])
-            self.board.field[][] = 'X'
-
+            moving_piece = move[0]
+            self.board.field[moving_piece.postion[0]][moving_piece.postion[1]] = 'X'
+            if self.board.field[move[1][0]][move[1][1]] == 'X':
+                self.board.field[move[1][0]][move[1][1]] = moving_piece
+                moving_piece.position = [move[1][0]][move[1][1]]
+            else:
+                result = moving_piece.compare_pieces(self.board.field[move[1][0]][move[1][1]])
+                if type(result) == list:
+                    result[0].position = 'Removed'
+                    result[1].position = 'Removed'
+                    self.board.field[move[1][0]][move[1][1]] = 'X'
+                else:
+                    if result == 'Victory':
+                        victor = players[i % 2]
+                    else:
+                        if result == 'Enemy':
+                            moving_piece.position = 'Removed'
+                        else:
+                            moving_piece.position = [move[1][0]][move[1][1]]
+                            self.board.field[move[1][0]][move[1][1]].position = 'Removed'
+                            self.board.field[move[1][0]][move[1][1]] = moving_piece
             i += 1
+            self.board.print_board()
 
         return victor
 
-while not victory
-    move()
-    return victor
 
+game = Game("Initial_setup.txt")

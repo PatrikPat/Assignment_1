@@ -16,19 +16,19 @@ class Piece:
     def compare_pieces(self, piece):
         if piece.rank == 'B':
             if self.rank == 3:
-                return piece
+                return 'Enemy'
             else:
-                return self
+                return 'Player'
         elif self.rank == 1 and piece.rank == 10:
-            return piece
+            return 'Enemy'
         elif piece.rank == 'F':
             return 'Victory'
         elif self.rank > piece.rank:
-            return piece
+            return 'Enemy'
         elif self.rank == piece.rank:
-            return piece, self
+            return [piece, self]
         else:
-            return self
+            return 'Player'
 
     def move(self, new_position):
         self.position = new_position

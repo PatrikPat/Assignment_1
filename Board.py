@@ -1,9 +1,10 @@
 from Piece import *
 
+
 class Board:
     def __init__(self, file_name):
         self.field = [['X' for i in range(6)] for i in range(4)]
-        self.moves = [[i,j] for i in range(4) for j in range(6)]
+        self.moves = [[i, j] for i in range(4) for j in range(6)]
         setup_list = []
 
         with open(file_name) as f:
@@ -36,11 +37,11 @@ class Board:
                     if piece.team == player:
                         if piece.rank != 'F' or piece.rank != 'B':
                             if [piece.position[0] - 1, piece.position[1]] in self.moves and [piece.position[0] - 1, piece.position[1]] not in player_pieces:
-                                possible_plays.append([piece.rank, [piece.position[0] - 1, piece.position[1]]])
+                                possible_plays.append([piece, [piece.position[0] - 1, piece.position[1]]])
                             if [piece.position[0] + 1, piece.position[1]] in self.moves and [piece.position[0] + 1, piece.position[1]] not in player_pieces:
-                                possible_plays.append([piece.rank, [piece.position[0] + 1, piece.position[1]]])
+                                possible_plays.append([piece, [piece.position[0] + 1, piece.position[1]]])
                             if [piece.position[0], piece.position[1] + 1] in self.moves and [piece.position[0], piece.position[1] + 1] not in player_pieces:
-                                possible_plays.append([piece.rank, [piece.position[0], piece.position[1] + 1]])
+                                possible_plays.append([piece, [piece.position[0], piece.position[1] + 1]])
         return possible_plays
 
     def print_board(self):
@@ -70,4 +71,4 @@ field = Board("Initial_setup.txt")
 #                         possible_plays.get(piece).append(piece.position[1] + 1)
 #
 # print(possible_plays)
-print(field.possible_moves('R'))
+#print(field.possible_moves('R'))
