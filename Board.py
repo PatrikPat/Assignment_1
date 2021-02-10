@@ -35,13 +35,17 @@ class Board:
             for piece in line:
                 if piece != 'X':
                     if piece.team == player:
-                        if piece.rank != 'F' or piece.rank != 'B':
+                        if piece.rank != 'F' and piece.rank != 'B':
                             if [piece.position[0] - 1, piece.position[1]] in self.moves and [piece.position[0] - 1, piece.position[1]] not in player_pieces:
                                 possible_plays.append([piece, [piece.position[0] - 1, piece.position[1]]])
                             if [piece.position[0] + 1, piece.position[1]] in self.moves and [piece.position[0] + 1, piece.position[1]] not in player_pieces:
                                 possible_plays.append([piece, [piece.position[0] + 1, piece.position[1]]])
-                            if [piece.position[0], piece.position[1] + 1] in self.moves and [piece.position[0], piece.position[1] + 1] not in player_pieces:
-                                possible_plays.append([piece, [piece.position[0], piece.position[1] + 1]])
+                            if piece.team == 'R':
+                                if [piece.position[0], piece.position[1] + 1] in self.moves and [piece.position[0], piece.position[1] + 1] not in player_pieces:
+                                    possible_plays.append([piece, [piece.position[0], piece.position[1] + 1]])
+                            else:
+                                if [piece.position[0], piece.position[1] - 1] in self.moves and [piece.position[0], piece.position[1] - 1] not in player_pieces:
+                                    possible_plays.append([piece, [piece.position[0], piece.position[1] - 1]])
         return possible_plays
 
     def print_board(self):
