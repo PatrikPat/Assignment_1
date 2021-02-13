@@ -1,4 +1,4 @@
-from Piece import *
+
 from Board import *
 import random as random
 
@@ -54,7 +54,18 @@ class Game:
                             self.board.field[move[1][0]][move[1][1]].position = 'Removed'
                             self.board.field[move[1][0]][move[1][1]] = moving_piece
             i += 1
-            
-        return victor
+
+        spies = 0
+        both_spies = False
+        for z in range(4):
+            for j in range(6):
+                if self.board.field[z][j] != 'X':
+                    if self.board.field[z][j].rank == 1:
+                        spies += 1
+
+        if spies == 2:
+            both_spies = True
+
+        return victor, i+1, both_spies
 
 
