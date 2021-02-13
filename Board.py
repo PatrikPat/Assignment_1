@@ -20,7 +20,10 @@ class Board:
             help_list = line.split()
             for j in help_list:
                 if j != 'X':
-                    self.field[i][help_list.index(j)] = Piece(j[0], [i, help_list.index(j)], j[1:])
+                    if j[1:] == 'F' or j[1:] == 'B':
+                        self.field[i][help_list.index(j)] = Piece(j[0], [i, help_list.index(j)], j[1:])
+                    else:
+                        self.field[i][help_list.index(j)] = Piece(j[0], [i, help_list.index(j)], int(j[1:]))
 
     def possible_moves(self, player):
         player_pieces = []
@@ -58,21 +61,3 @@ class Board:
             print('')
 
 
-field = Board("Initial_setup.txt")
-# possible_plays = {}
-# for lin in field.field:
-#     for piece in lin:
-#         if piece != 'X':
-#             if piece.team == 'R':
-#                 if piece.rank != 'F' or piece.rank != 'B':
-#                     possible_plays[piece] = []
-#                     if [piece.position[0] - 1, piece.position[0]] in field.moves:
-#                         print('ya')
-#                         possible_plays.get(piece).append(piece.position[0] - 1)
-#                     if piece.position[0] + 1 in field.moves:
-#                         possible_plays.get(piece).append(piece.position[0] + 1)
-#                     if piece.position[1] + 1 in field.moves:
-#                         possible_plays.get(piece).append(piece.position[1] + 1)
-#
-# print(possible_plays)
-#print(field.possible_moves('R'))

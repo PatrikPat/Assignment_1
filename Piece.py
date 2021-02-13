@@ -36,5 +36,3 @@ class Piece:
     def remove(self):
         self.position = []
 
-
-
