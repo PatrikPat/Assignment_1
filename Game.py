@@ -4,19 +4,30 @@ import random as random
 
 
 class Game:
-    def __init__(self, filename):
-        self.board = Board(filename)
+    def __init__(self, field):
+        self.board = Board(field)
 
     def move(self, player):
         moves = self.board.possible_moves(player)
         move = random.choice(moves)
         return move
 
-    def play_game(self):
+    def play_game(self, position):
         players = ['R', 'B']
         i = 0
         victor = 'Draw'
         draw = []
+
+        if position != 'Random':
+            move = [self.board.field[position[0]][position[1]], [position[0], position[1] + 1]]
+            moving_piece = move[0]
+            self.board.field[moving_piece.position[0]][moving_piece.position[1]] = 'X'
+
+            if self.board.field[move[1][0]][move[1][1]] == 'X':
+                self.board.field[move[1][0]][move[1][1]] = moving_piece
+                moving_piece.position = move[1]
+            i += 1
+
         while True:
             try:
                 move = self.move(players[i % 2])

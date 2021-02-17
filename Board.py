@@ -2,28 +2,9 @@ from Piece import *
 
 
 class Board:
-    def __init__(self, file_name):
-        self.field = [['X' for i in range(6)] for i in range(4)]
+    def __init__(self, field):
+        self.field = field
         self.moves = [[i, j] for i in range(4) for j in range(6)]
-        setup_list = []
-
-        with open(file_name) as f:
-            line = f.readline()
-            setup_list.append(line.rstrip('\n'))
-            while line:
-                line = f.readline()
-                if line != '':
-                    setup_list.append(line.rstrip('\n'))
-
-        for i in range(4):
-            line = setup_list[i]
-            help_list = line.split()
-            for j in help_list:
-                if j != 'X':
-                    if j[1:] == 'F' or j[1:] == 'B':
-                        self.field[i][help_list.index(j)] = Piece(j[0], [i, help_list.index(j)], j[1:])
-                    else:
-                        self.field[i][help_list.index(j)] = Piece(j[0], [i, help_list.index(j)], int(j[1:]))
 
     def possible_moves(self, player):
         player_pieces = []
