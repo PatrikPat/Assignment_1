@@ -53,8 +53,19 @@ for i in range(4):
             else:
                 setup_field[i][help_list.index(j)] = Piece(j[0], [i, help_list.index(j)], int(j[1:]))
 
+possible_positions = [[i, j] for i in range(4) for j in range(2)]
 
-setup_field[0][0] = Piece('R', [0, 0], 'F')
+for flag in [[0, 0], [3, 0]]: #two possible flag positions
+    setup_field[flag[0]][flag[1]] = Piece('R', [flag[0], flag[1]], 'F')
+    possible_positions.remove(flag)
+    if flag == [0, 0]:
+        for bomb in [[0, 1], [1, 0]]: #based on the flag, two possible bomb positions
+            setup_field[bomb[0][bomb[1]]] = Piece('R', [bomb[0], bomb[1]], 'B')
+            possible_positions.remove(bomb)
+            for miner in possible_positions and miner[0] == 0:
+                setup_field[miner[0][miner[1]]] = Piece('R', [miner[0], miner[1]])
+                possible_positions.remove(miner)
+
 sim = Simulator(10000)
 #red_prob, blue_prob, draw_prob, average_moves, average_moves_red, average_moves_blue, spies_prob = sim.runSimulation([0, 1])
 #print(red_prob, blue_prob, draw_prob, average_moves, average_moves_red, average_moves_blue, spies_prob)
