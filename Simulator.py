@@ -105,7 +105,8 @@ class Simulator:
         flag_positions = [[0, 0], [3, 0]]
         bomb_positions = [[[0, 1], [1, 0]], [[2, 0], [3, 1]]]
         general_maarschalk = [9, 10]
-        spy_verkenner = [[2, 2, 1], [2, 1, 2], [1, 2, 2]]        
+        spy_verkenner = [[2, 2, 1], [2, 1, 2], [1, 2, 2]]
+        all_fieldsV1 = []        
         
         while True:
             # initialize variables at start of loop
@@ -163,7 +164,7 @@ class Simulator:
                 g += 1
                 if not possible_positions:
                     # add this one field
-                    all_fields.append(deepcopy(setup_field))
+                    all_fieldsV1.append(deepcopy(setup_field))
                     b += 1 # b + 1 so next scout/spy combination is filled
                     break
             
@@ -191,7 +192,7 @@ class Simulator:
                 j = 0
                 i = 1
         
-        return all_fields
+        return all_fieldsV1
     
     def BraRoV2(self, field) -> list:
         """Run the second version of the BraRo heuristic where the flag, bomb,
@@ -202,7 +203,7 @@ class Simulator:
         setup_field = field 
         spy_options = [[2, 0], [2, 1]]
         scout_miner = [[2, 2, 3], [2, 3, 2], [3, 2, 2]]
-        all_fields = []
+        all_fieldsV2 = []
         a = 0
         while True:
             g = 0
@@ -232,7 +233,7 @@ class Simulator:
                     scout = scout_miner[g]
                     setup_field[possible_positions[p][0]][possible_positions[p][1]] = Piece('R', possible_positions[p], scout[p])
                     if p == len(possible_positions) - 1:
-                        all_fields.append(deepcopy(setup_field))
+                        all_fieldsV2.append(deepcopy(setup_field))
                 g += 1
                 
                 # all scout/miner combinations made
@@ -245,7 +246,7 @@ class Simulator:
                 break
             a += 1
         
-        return all_fields
+        return all_fieldsV2
         
 #ranks = ['B', 2, 2, 1, 10, 9, 3]
 
@@ -276,13 +277,12 @@ class Simulator:
 #setup_field[3][1] = Piece('R', [3, 1], 10)
 #Board(setup_field).print_board()
 #r = 0
-sim = Simulator(1000)
-all_fields = sim.BraRoV1(sim.readFile("Initial_setup.txt"))
-for field in all_fields:
-    #red_prob, blue_prob, draw_prob, average_moves, average_moves_red, average_moves_blue, spies_prob = sim.runSimulation('Random', field)
-    #print(red_prob, blue_prob, draw_prob, average_moves, average_moves_red, average_moves_blue, spies_prob)
-    Board(field).print_board()
-    print("")
+#sim = Simulator(10000)
+#field = sim.readFile("Initial_setup.txt")
+##for field in ya:
+#red_prob, blue_prob, draw_prob, average_moves, average_moves_red, average_moves_blue, spies_prob = sim.runSimulation('Random', field)
+#print(red_prob, blue_prob, draw_prob, average_moves, average_moves_red, average_moves_blue, spies_prob)
+
 
 # results = {}
 #

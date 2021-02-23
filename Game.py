@@ -90,6 +90,7 @@ class Game:
         for z in range(4):
             for j in range(6):
                 if self.board.field[z][j] != 'X':
+                    #print(self.board.print_board())
                     if self.board.field[z][j].rank == 1:
                         spies += 1
         
