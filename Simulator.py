@@ -87,8 +87,112 @@ class Simulator:
                 red_win.append(0)
                 blue_win.append(0)
         
-        return self.confidenceCalculator(red_win),  self.confidenceCalculator(blue_win), self.confidenceCalculator(draw), self.confidenceCalculator(total_moves), self.confidenceCalculator(total_red_moves), self.confidenceCalculator(total_blue_moves), self.confidenceCalculator(total_both_spies)
+        return self.confidenceCalculator(red_win), self.confidenceCalculator(blue_win), self.confidenceCalculator(draw), self.confidenceCalculator(total_moves), self.confidenceCalculator(total_red_moves), self.confidenceCalculator(total_blue_moves), self.confidenceCalculator(total_both_spies)
 
+    def BraRoV1(self, field) -> list:
+        """Run the first version of the BraRo heuristic where different combinations
+        of logical start positions are tested. Returns a list of fields.
+        """
+        # initialize variables
+        setup_field = field
+        i = 0 #flag
+        j = 0 #bomb
+        z = 0 #miner
+        a = 0 #general/maarschalk combinations
+        y = 0 #general or maarschalk
+        g = 0 #scout, scout, or spy
+        b = 0 #which scout/spy combination
+        flag_positions = [[0, 0], [3, 0]]
+        bomb_positions = [[[0, 1], [1, 0]], [[2, 0], [3, 1]]]
+        general_maarschalk = [9, 10]
+        spy_verkenner = [[2, 2, 1], [2, 1, 2], [1, 2, 2]]        
+        
+        while True:
+            # initialize variables at start of loop
+            possible_positions = [[i, j] for i in range(4) for j in range(2)]
+            miner_positions = [[0, 0], [1, 0], [2, 0], [3, 0]]
+            # make possible general/marshall combinations, e.g. [0, 1] and [3, 1]
+            general_maarschalk_positions = []
+            for l in range(4):
+                if l + 2 < 4:
+                    general_maarschalk_positions.append([[l, 1], [l + 2, 1]])
+                if l + 3 < 4:
+                    general_maarschalk_positions.append([[l, 1], [l + 3, 1]])
+            g = 0
+            
+            # set flag for this iteration
+            flag = flag_positions[i]
+            setup_field[flag[0]][flag[1]] = Piece('R', [flag[0], flag[1]], 'F')
+            possible_positions.remove(flag)
+            miner_positions.remove(flag)
+        
+            # set bomb for this iteration and remove possible positions
+            bomb_list = bomb_positions[i]  # based on the flag, two possible bomb positions
+            bomb = bomb_list[j]
+            setup_field[bomb[0]][bomb[1]] = Piece('R', [bomb[0], bomb[1]], 'B')
+            possible_positions.remove(bomb)
+            if bomb[1] == 0:
+                miner_positions.remove(bomb)
+            if bomb[0] == 0:
+                general_maarschalk_positions.remove([[0, 1], [2, 1]])
+                general_maarschalk_positions.remove([[0, 1], [3, 1]])
+            if bomb[0] == 3:
+                general_maarschalk_positions.remove([[0, 1], [3, 1]])
+                general_maarschalk_positions.remove([[1, 1], [3, 1]])
+            
+            # set miner
+            miner = miner_positions[z]
+            setup_field[miner[0]][miner[1]] = Piece('R', [miner[0], miner[1]], 3)
+            possible_positions.remove(miner)
+            
+            # set general and marshall as defined in the heuristic
+            general_and_maarschalk = general_maarschalk_positions[a]
+            p = general_and_maarschalk[0]
+            p2 = general_and_maarschalk[1]
+            setup_field[p[0]][p[1]] = Piece('R', [p[0], p[1]], general_maarschalk[y % 2])
+            setup_field[p2[0]][p2[1]] = Piece('R', [p2[0], p2[1]], general_maarschalk[(y + 1) % 2])
+            possible_positions.remove(p)
+            possible_positions.remove(p2)
+            
+            # fill the empty spots with every possible combination of what is left
+            while True:
+                spy = spy_verkenner[b]
+                p = possible_positions[0]
+                setup_field[p[0]][p[1]] = Piece('R', [p[0], p[1]], spy[g])
+                possible_positions.remove(p)
+                g += 1
+                if not possible_positions:
+                    # add this one field
+                    all_fields.append(deepcopy(setup_field))
+                    b += 1 # b + 1 so next scout/spy combination is filled
+                    break
+            
+            # if all scout combinations checked for this setup, move to changing the marshall and general around (y)
+            if b == 3:
+                b = 0
+                y += 1
+            
+            if y == 2: #general and maarschalk are changed, so change their positions
+                y = 0
+                a += 1
+            
+            if a == len(general_maarschalk_positions): # all positions of general and marshall are checked, change miner
+                a = 0
+                z += 1
+                
+            if z == len(miner_positions):  # miner is checked, go to next bomb iteration
+                z = 0
+                j += 1
+                
+            if i == 1 and j == 2: #all combinations are done
+                break
+            
+            if j == 2: #go to next flag iteration
+                j = 0
+                i = 1
+        
+        return all_fields
+    
     def BraRoV2(self, field) -> list:
         """Run the second version of the BraRo heuristic where the flag, bomb,
         marshall and general are predefined, the spy differs between two positions
@@ -96,7 +200,6 @@ class Simulator:
         """
         # initialize variables
         setup_field = field 
-        the_rest = [2, 2, 1, 3]
         spy_options = [[2, 0], [2, 1]]
         scout_miner = [[2, 2, 3], [2, 3, 2], [3, 2, 2]]
         all_fields = []
@@ -111,6 +214,7 @@ class Simulator:
             setup_field[3][0] = Piece('R', [3, 0], 9)
             setup_field[3][1] = Piece('R', [3, 1], 10)
             
+            # remove placed positions from possible positions
             possible_positions.remove([0, 0])
             possible_positions.remove([0, 1])
             possible_positions.remove([3, 0])
@@ -121,146 +225,28 @@ class Simulator:
             setup_field[spy_position[0]][spy_position[1]] = Piece('R', spy_position, 1)
             possible_positions.remove(spy_position)
             
+            # fill the empty spaces with the pieces that are lef
             while True:
                 for p in range(len(possible_positions)):
+                    # g here is used to ensure that all combinations are made
                     scout = scout_miner[g]
                     setup_field[possible_positions[p][0]][possible_positions[p][1]] = Piece('R', possible_positions[p], scout[p])
                     if p == len(possible_positions) - 1:
                         all_fields.append(deepcopy(setup_field))
-                        print("")
-                        Board(setup_field).print_board()
                 g += 1
                 
+                # all scout/miner combinations made
                 if g == 3:
                     break
             
+            # all possible fields made
             if a == 1:
                 a = 0
                 break
             a += 1
         
         return all_fields
-#flag_positions = [[0, 0], [3, 0]]
-#bomb_positions = [[[0, 1], [1, 0]], [[2, 0], [3, 1]]]
-#miner_positions = [[0, 0], [1, 0], [2, 0], [3, 0]]
-#general_maarschalk = [9, 10]
-#general_maarschalk_positions = []
-#for i in range(4):
-#    if i + 2 < 4:
-#        general_maarschalk_positions.append([[i, 1], [i + 2, 1]])
-#    if i + 3 < 4:
-#        general_maarschalk_positions.append([[i, 1], [i + 3, 1]])
-
-flag_positions = [[0, 0]]
-bomb_positions = [[[0, 1], [1, 0]]]
-miner_positions = [[0, 0], [1, 0], [2, 0]]
-general_maarschalk = [9, 10]
-general_maarschalk_positions = [[3, 0], [3, 1]]
-#for i in range(4):
-#    if i + 2 < 4:
-#        general_maarschalk_positions.append([[i, 1], [i + 2, 1]])
-#    if i + 3 < 4:
-#        general_maarschalk_positions.append([[i, 1], [i + 3, 1]])
         
-        
-spy_verkenner = [[2, 2, 1], [2, 1, 2], [1, 2, 2]]
-possible_positions = [[i, j] for i in range(4) for j in range(2)]
-
-i = 0 #flag
-j = 0 #bomb
-z = 0 #miner
-a = 0 #general/maarschalk combinations
-y = 0 #general or maarschalk
-g = 0 #verkenner, verkenner, or spy
-b = 0 #which verkenner/spy combination
-general_placed = False
-all_fields = []
-the_rest = [2, 2, 1, 3]
-spy_options = [[2, 0], [2, 1]]
-scout_miner = [[2, 2, 3], [2, 3, 2], [3, 2, 2]]
-
-
-
-    
-    
-#while True:
-#    possible_positions = [[i, j] for i in range(4) for j in range(2)]
-#    miner_positions = [[0, 0], [1, 0], [2, 0], [3, 0]]
-#    general_placed = False
-#    general_maarschalk_positions = []
-#    for l in range(4):
-#        if l + 2 < 4:
-#            general_maarschalk_positions.append([[l, 1], [l + 2, 1]])
-#        if l + 3 < 4:
-#            general_maarschalk_positions.append([[l, 1], [l + 3, 1]])
-#    g = 0
-#
-#    flag = flag_positions[i]
-#    setup_field[flag[0]][flag[1]] = Piece('R', [flag[0], flag[1]], 'F')
-#    possible_positions.remove(flag)
-#    miner_positions.remove(flag)
-#
-#    bomb_list = bomb_positions[i]  # based on the flag, two possible bomb positions
-#    bomb = bomb_list[j]
-#    setup_field[bomb[0]][bomb[1]] = Piece('R', [bomb[0], bomb[1]], 'B')
-#    possible_positions.remove(bomb)
-#    if bomb[1] == 0:
-#        miner_positions.remove(bomb)
-#    if bomb[0] == 0:
-#        general_maarschalk_positions.remove([[0, 1], [2, 1]])
-#        general_maarschalk_positions.remove([[0, 1], [3, 1]])
-#    if bomb[0] == 3:
-#        general_maarschalk_positions.remove([[0, 1], [3, 1]])
-#        general_maarschalk_positions.remove([[1, 1], [3, 1]])
-#        
-#    miner = miner_positions[z]
-#    setup_field[miner[0]][miner[1]] = Piece('R', [miner[0], miner[1]], 3)
-#    possible_positions.remove(miner)
-#    
-#    general_and_maarschalk = general_maarschalk_positions[a]
-#    p = general_and_maarschalk[0]
-#    p2 = general_and_maarschalk[1]
-#    setup_field[p[0]][p[1]] = Piece('R', [p[0], p[1]], general_maarschalk[y % 2])
-#    setup_field[p2[0]][p2[1]] = Piece('R', [p2[0], p2[1]], general_maarschalk[(y + 1) % 2])
-#    possible_positions.remove(p)
-#    possible_positions.remove(p2)
-#    
-#    while True:
-#        spy = spy_verkenner[b]
-#        p = possible_positions[0]
-#        setup_field[p[0]][p[1]] = Piece('R', [p[0], p[1]], spy[g])
-#        possible_positions.remove(p)
-#        g += 1
-#        if not possible_positions:
-#            all_fields.append(setup_field)
-#            #print("")
-#            #Board(all_fields[0]).print_board()
-#            b += 1
-#            break
-#    
-#    if b == 3:
-#        b = 0
-#        y += 1
-#    
-#    if y == 2: #general and maarschalk are changed
-#        y = 0
-#        a += 1
-#    
-#    if a == len(general_maarschalk_positions):
-#        a = 0
-#        z += 1
-#        
-#    if z == len(miner_positions):  #fix different bomb and miner combinations per flag
-#        z = 0
-#        j += 1
-#        
-#    if i == 1 and j == 2: #all combinations are done
-#        break
-#    
-#    if j == 2: #go to next flag iteration
-#        j = 0
-#        i = 1
-    
 #ranks = ['B', 2, 2, 1, 10, 9, 3]
 
 
@@ -291,11 +277,12 @@ scout_miner = [[2, 2, 3], [2, 3, 2], [3, 2, 2]]
 #Board(setup_field).print_board()
 #r = 0
 sim = Simulator(1000)
-all_fields = sim.BraRoV2(sim.readFile("Initial_setup.txt"))
+all_fields = sim.BraRoV1(sim.readFile("Initial_setup.txt"))
 for field in all_fields:
-    red_prob, blue_prob, draw_prob, average_moves, average_moves_red, average_moves_blue, spies_prob = sim.runSimulation('Random', field)
-    print(red_prob, blue_prob, draw_prob, average_moves, average_moves_red, average_moves_blue, spies_prob)
+    #red_prob, blue_prob, draw_prob, average_moves, average_moves_red, average_moves_blue, spies_prob = sim.runSimulation('Random', field)
+    #print(red_prob, blue_prob, draw_prob, average_moves, average_moves_red, average_moves_blue, spies_prob)
     Board(field).print_board()
+    print("")
 
 # results = {}
 #
