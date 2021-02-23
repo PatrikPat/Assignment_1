@@ -1,5 +1,4 @@
 from Simulator import *
-from Board import *
 import time
 start_time = time.time()
 
